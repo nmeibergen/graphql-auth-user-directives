@@ -1,5 +1,5 @@
 {
-  "name": "graphql-auth-directives",
+  "name": "graphql-auth-user-directives",
   "version": "2.0.0",
   "description": "Add authorization to your GraphQL API using schema directives.",
   "main": "./dist/index.js",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grand-stack/graphql-auth-directives.git"
+    "url": "git+http://begitlab.westeurope.cloudapp.azure.com/vilans/graphql-auth-user-directives.git"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
@@ -34,14 +34,15 @@
   "keywords": [
     "GraphQL",
     "authorization",
-    "neo4j"
+    "neo4j",
+    "user"
   ],
-  "author": "William Lyon",
+  "author": "William Lyon/Nathan Meibergen",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/grand-stack/graphql-auth-directives/issues"
+    "url": "http://begitlab.westeurope.cloudapp.azure.com/vilans/graphql-auth-user-directives/issues"
   },
-  "homepage": "https://github.com/grand-stack/graphql-auth-directives#readme",
+  "homepage": "http://begitlab.westeurope.cloudapp.azure.com/vilans/graphql-auth-user-directives#readme",
   "lint-staged": {
     "*.{js,json,css}": [
       "prettier --write",

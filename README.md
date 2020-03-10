@@ -1,6 +1,6 @@
-# graphql-auth-directives
+# graphql-auth-user-directives
 
-[![CircleCI](https://circleci.com/gh/grand-stack/graphql-auth-directives.svg?style=svg)](https://circleci.com/gh/grand-stack/graphql-auth-directives)
+[![CircleCI](https://circleci.com/gh/grand-stack/graphql-auth-user-directives.svg?style=svg)](https://circleci.com/gh/grand-stack/graphql-auth-user-directives)
 
 Add authentication to your GraphQL API with schema directives.
 
@@ -13,14 +13,14 @@ Add authentication to your GraphQL API with schema directives.
 ## Quick start
 
 ```sh
-npm install --save graphql-auth-directives
+npm install --save graphql-auth-user-directives
 ```
 
 Then import the schema directives you'd like to use and attach them during your GraphQL schema construction. For example using [neo4j-graphql.js' `makeAugmentedSchema`](https://grandstack.io/docs/neo4j-graphql-js-api.html#makeaugmentedschemaoptions-graphqlschema):
 
 
 ```js
-import { IsAuthenticatedDirective, HasRoleDirective, HasScopeDirective } from "graphql-auth-directives";
+import { IsAuthenticatedDirective, HasRoleDirective, HasScopeDirective } from "graphql-auth-user-directives";
 
 const augmentedSchema = makeAugmentedSchema({
   typeDefs,

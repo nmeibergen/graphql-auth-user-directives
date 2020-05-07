@@ -68,6 +68,8 @@ const getScopesFromUser = (
       return scopes;
     } else if (permissions && permissions[defaultRole]) {
       return permissions[defaultRole];
+    } else {
+      return null;
     }
   } else {
     return null;
@@ -139,7 +141,10 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
 
       const scopes = getScopesFromUser(context.user);
 
-      if (expectedScopes.some(scope => scopes.indexOf(scope) !== -1)) {
+      if (
+        scopes !== null &&
+        expectedScopes.some(scope => scopes.indexOf(scope) !== -1)
+      ) {
         return next(result, args, context, info);
       }
 
@@ -165,7 +170,10 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
 
         const scopes = getScopesFromUser(context.user);
 
-        if (expectedScopes.some(role => scopes.indexOf(role) !== -1)) {
+        if (
+          scopes !== null &&
+          expectedScopes.some(role => scopes.indexOf(role) !== -1)
+        ) {
           return next(result, args, context, info);
         }
         throw new AuthorizationError({

@@ -48,7 +48,8 @@ const getScopesFromUser = (
   }
 
   if (process.env.PERMISSIONS) {
-    permissions = JSON.parse(process.env.PERMISSIONS); // load permissions from environment
+    const buff = Buffer.from(process.env.PERMISSIONS, "base64");
+    permissions = JSON.parse(buff.toString("utf-8"));
   }
 
   if (user == null && permissions) {
@@ -147,10 +148,6 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
       });
     };
   }
-
-  // Todo: Make sure that:
-  //  - Authorisation is allowed if no permissions are required
-  //  - Authorisation is performed on scopes if scopes are provided
 
   visitObject(obj) {
     const fields = obj.getFields();

@@ -10,17 +10,23 @@ import {
 } from "graphql";
 
 const userMetaMapper = (user, metas) => {
+  if (process.env.USER_METAS) {
+    metas = process.env.USER_METAS;
+  }
+
   if (user) {
     // e.g. roles
     // This can be made more generic for more custom meta data
-    if (metas === undefined) {
+    if (metas == null) {
       return user;
     }
     if (typeof metas === "string") {
       metas = [metas]; // Make an array
     }
     metas.forEach(meta => {
-      const key = Object.keys(user).find(key => key.endsWith(`/${meta}`));
+      const key = Object.keys(user).find(key =>
+        key.toLowerCase().endsWith(`/${meta}`)
+      );
       if (key) {
         user[meta] = user[key];
         delete user[key];
@@ -55,12 +61,12 @@ const getScopesFromUser = (
 
     if (permissions == null && scopes) {
       return scopes;
-    } else if (permissions) {
-      if (role && permissions[role]) {
-        return permissions[role];
-      } else {
-        return permissions[defaultRole];
-      }
+    } else if (role && permissions[role]) {
+      return permissions[role];
+    } else if (scopes) {
+      return scopes;
+    } else if (permissions && permissions[defaultRole]) {
+      return permissions[defaultRole];
     }
   } else {
     return null;
@@ -95,7 +101,7 @@ export const verifyAndDecodeToken = ({ context }) => {
       algorithms: ["HS256", "RS256"]
     });
 
-    return userMetaMapper(decoded, process.env.USER_METAS); // finally map url metas to metas
+    return userMetaMapper(decoded); // finally map url metas to metas
   } catch (err) {
     throw new AuthorizationError({
       message: "You are not authorized for this resource"

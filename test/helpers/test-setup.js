@@ -90,6 +90,9 @@ const resolvers = {
     },
     deleteUser(object, params, ctx, resolveInfo) {
       console.log("deleteUser resolver");
+      return {
+        id: 1
+      };
     },
     deleteItem(object, params, ctx, resolveInfo) {
       console.log("deleteItem resolver");

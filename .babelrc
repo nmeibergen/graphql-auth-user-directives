@@ -1,1 +1,10 @@
-{ "presets": ["env"] }
+{
+  "presets": [
+    ["env", {
+      "targets": {
+        "node": "13.11.0"
+      }
+    }]
+  ],
+  "plugins": [["transform-object-rest-spread", { "useBuiltIns": true }]]
+}

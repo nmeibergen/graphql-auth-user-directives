@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon ./examples/index.js --exec babel-node -e js",
     "start-test-setup": "nodemon ./test/helpers/test-setup.js --exec babel-node -e js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --runInBand --detectOpenHandles --forceExit",
     "build": "babel src --presets babel-preset-env --out-dir dist",
     "precommit": "lint-staged",
     "prepublish": "npm run build",
@@ -22,11 +22,11 @@
     "apollo-client": "^2.4.12",
     "apollo-link-http": "^1.5.11",
     "apollo-server": "^2.2.5",
-    "ava": "^0.25.0",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "dotenv": "^6.2.0",
     "husky": "^1.1.2",
+    "jest": "^26.0.1",
     "lint-staged": "^7.3.0",
     "nodemon": "^1.18.7",
     "prettier": "^1.13.5"
@@ -42,6 +42,14 @@
   "bugs": {
     "url": "http://begitlab.westeurope.cloudapp.azure.com/vilans/graphql-auth-user-directives/issues"
   },
+  "jest": {
+    "verbose": true,
+    "projects": [
+      {
+        "testTimeout": 10000
+      }
+    ]
+  },
   "homepage": "http://begitlab.westeurope.cloudapp.azure.com/vilans/graphql-auth-user-directives#readme",
   "lint-staged": {
     "*.{js,json,css}": [
@@ -51,8 +59,13 @@
   },
   "dependencies": {
     "apollo-errors": "^1.9.0",
+    "apollo-server-testing": "^2.13.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "graphql-tag": "^2.10.3",
     "graphql-tools": "^4.0.4",
-    "jsonwebtoken": "^8.3.0"
+    "jest": "^26.0.1",
+    "jsonwebtoken": "^8.3.0",
+    "node-fetch": "^2.6.0"
   },
   "peerDependencies": {
     "graphql": "~14.x"

@@ -9,6 +9,64 @@ import {
   GraphQLString
 } from "graphql";
 
+const userMetaMapper = (user, metas) => {
+  if (user) {
+    // e.g. roles
+    // This can be made more generic for more custom meta data
+    if (metas === undefined) {
+      return user;
+    }
+    if (typeof metas === "string") {
+      metas = [metas]; // Make an array
+    }
+    metas.forEach(meta => {
+      const key = Object.keys(user).find(key => key.endsWith(`/${meta}`));
+      if (key) {
+        user[meta] = user[key];
+        delete user[key];
+      }
+    });
+
+    return user;
+  }
+  return null;
+};
+
+const getScopesFromUser = (
+  user,
+  permissions = null,
+  defaultRole = "visitor"
+) => {
+  if (process.env.DEFAULT_ROLE) {
+    defaultRole = process.env.DEFAULT_ROLE;
+  }
+
+  if (process.env.PERMISSIONS) {
+    permissions = JSON.parse(process.env.PERMISSIONS); // load permissions from environment
+  }
+
+  if (user == null && permissions) {
+    return permissions[defaultRole];
+  }
+
+  if (user) {
+    const role = user.role || user.roles || user.Role || user.Roles;
+    const scopes = user.scope || user.scopes || user.Scope || user.Scopes;
+
+    if (permissions == null && scopes) {
+      return scopes;
+    } else if (permissions) {
+      if (role && permissions[role]) {
+        return permissions[role];
+      } else {
+        return permissions[defaultRole];
+      }
+    }
+  } else {
+    return null;
+  }
+};
+
 export const verifyAndDecodeToken = ({ context }) => {
   const req =
     context instanceof IncomingMessage
@@ -37,7 +95,7 @@ export const verifyAndDecodeToken = ({ context }) => {
       algorithms: ["HS256", "RS256"]
     });
 
-    return decoded;
+    return userMetaMapper(decoded, process.env.USER_METAS); // finally map url metas to metas
   } catch (err) {
     throw new AuthorizationError({
       message: "You are not authorized for this resource"
@@ -66,18 +124,15 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
 
     // wrap resolver with auth check
     field.resolve = function(result, args, context, info) {
-      const decoded = verifyAndDecodeToken({ context });
+      try {
+        context.user = verifyAndDecodeToken({ context });
+      } catch (e) {
+        // nothing to catch
+      }
 
-      // FIXME: override with env var
-      const scopes =
-        decoded["Scopes"] ||
-        decoded["scopes"] ||
-        decoded["Scope"] ||
-        decoded["scope"] ||
-        [];
+      const scopes = getScopesFromUser(context.user);
 
       if (expectedScopes.some(scope => scopes.indexOf(scope) !== -1)) {
-        context.user = decoded;
         return next(result, args, context, info);
       }
 
@@ -87,6 +142,10 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
     };
   }
 
+  // Todo: Make sure that:
+  //  - Authorisation is allowed if no permissions are required
+  //  - Authorisation is performed on scopes if scopes are provided
+
   visitObject(obj) {
     const fields = obj.getFields();
     const expectedScopes = this.args.roles;
@@ -95,18 +154,15 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
       const field = fields[fieldName];
       const next = field.resolve;
       field.resolve = function(result, args, context, info) {
-        const decoded = verifyAndDecodeToken({ context });
+        try {
+          context.user = verifyAndDecodeToken({ context });
+        } catch (e) {
+          // nothing to catch
+        }
 
-        // FIXME: override w/ env var
-        const scopes =
-          decoded["Scopes"] ||
-          decoded["scopes"] ||
-          decoded["Scope"] ||
-          decoded["scope"] ||
-          [];
+        const scopes = getScopesFromUser(context.user);
 
         if (expectedScopes.some(role => scopes.indexOf(role) !== -1)) {
-          context.user = decoded;
           return next(result, args, context, info);
         }
         throw new AuthorizationError({

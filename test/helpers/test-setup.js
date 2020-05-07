@@ -25,7 +25,7 @@ enum Role {
     admin
 }
 
-type User {
+type user {
     id: ID!
     name: String
 }
@@ -36,21 +36,21 @@ type Item  {
 }
 
 type Query {
-    userById(userId: ID!): User @hasScope(scopes: ["User:Read"])
-    itemById(itemId: ID!): Item @hasScope(scopes: ["Item:Read"])
+    userById(userId: ID!): user @hasScope(scopes: ["user:read"])
+    itemById(itemId: ID!): Item @hasScope(scopes: ["item:read"])
 }
 
 type Mutation {
-    createUser(id: ID!, name: String): User @hasScope(scopes: ["User:Create"])
-    createItem(id: ID!, name: String): Item @hasScope(scopes: ["Item:Create"])
+    createUser(id: ID!, name: String): user @hasScope(scopes: ["user:create"])
+    createItem(id: ID!, name: String): Item @hasScope(scopes: ["item:create"])
 
-    updateUser(id: ID!, name: String): User @hasScope(scopes: ["User:Update"])
-    updateItem(id: ID!, name: String): Item @hasScope(scopes: ["Item:Update"])
+    updateUser(id: ID!, name: String): user @hasScope(scopes: ["user:update"])
+    updateItem(id: ID!, name: String): Item @hasScope(scopes: ["item:update"])
 
-    deleteUser(id: ID!): User @hasScope(scopes: ["User:Delete"])
-    deleteItem(id: ID!): Item @hasScope(scopes: ["Item:Delete"])
+    deleteUser(id: ID!): user @hasScope(scopes: ["user:delete"])
+    deleteItem(id: ID!): Item @hasScope(scopes: ["item:delete"])
     
-    addUserItemRelationship(userId: ID!, itemId: ID!): User @hasScope(scopes: ["User:Create", "Item:Create"])
+    addUserItemRelationship(userId: ID!, itemId: ID!): user @hasScope(scopes: ["user:create", "item:create"])
 }
 `;
 
@@ -78,6 +78,9 @@ const resolvers = {
     },
     createItem(object, params, ctx, resolveInfo) {
       console.log("createItem resolver");
+      return {
+        id: 1
+      };
     },
     updateUser(object, params, ctx, resolveInfo) {
       console.log("updateUser resolver");
@@ -107,13 +110,29 @@ const schema = makeExecutableSchema({
   }
 });
 
-const server = new ApolloServer({
-  schema,
-  context: ({ req }) => {
-    return req;
+class ApolloTestServer extends ApolloServer {
+  constructor(config) {
+    super(config);
+    this.context = ({ req }) => {
+      return req;
+    };
   }
+
+  setContext(newContext) {
+    this.context = newContext;
+  }
+
+  mergeContext(partialContext) {
+    this.context = Object.assign({}, this.context, partialContext);
+  }
+
+  resetContext() {
+    this.context = baseContext;
+  }
+}
+
+const server = new ApolloTestServer({
+  schema: schema
 });
 
-server.listen(3000, "0.0.0.0").then(({ url }) => {
-  console.log(`GraphQL server ready at ${url}`);
-});
+module.exports.server = server;

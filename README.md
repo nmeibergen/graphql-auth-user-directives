@@ -107,6 +107,29 @@ Set:
 export AUTH_DIRECTIVES_ROLE_KEY=https://grandstack.io/roles
 ```
 
+(optional)
+If you'd like to work with a JSON based permission file in the following format:
+```sh
+{
+  "role1": ["resource1:action1", "resource2:action2"],
+  "role2": ["resource3:action3", "resource4:action4"]
+}
+```
+where provided a role to the encoded user you'd like to use the corresponding permissions. Then setup the JSON in a seperate file and base64 encode it to add is as an environment variable, e.g.
+```sh
+export PERMISSIONS=ewogICJyb2xlMSI6IFsicmVzb3VyY2UxOmFjdGlvbjEiLCAicmVzb3VyY2UyOmFjdGlvbjIiXSwKICAicm9sZTIiOiBbInJlc291cmNlMzphY3Rpb24zIiwgInJlc291cmNlNDphY3Rpb240Il0KfQ==
+```
+
+Furthermore, if you work with such permission JSON you can provide a default user, e.g. the user that will be applied if authentication fails. Specify the user in your JSON and provide the name of the role as an environment variable, e.g.:
+```sh
+export DEFAULT_ROLE=visitor
+```
+
+Finally, in some cases the roles and or scopes in the decoded user object may come with an url such as `https://grandstack.io/roles` and `https://grandstack.io/scopes`, you can map these to `roles` and `scopes` respectively in your final user by providing the meta names comma seperated, e.g.
+```sh
+export USER_METAS="roles,scopes"
+```
+
 ## Test JWTs
 
 Scopes: user:CRUD

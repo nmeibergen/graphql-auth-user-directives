@@ -11,7 +11,7 @@ import {
 
 const userMetaMapper = (user, metas) => {
   if (process.env.USER_METAS) {
-    metas = process.env.USER_METAS;
+    metas = process.env.USER_METAS.split(",");
   }
 
   if (user) {

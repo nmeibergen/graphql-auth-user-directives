@@ -2,6 +2,7 @@
 
 import { ApolloServer } from "apollo-server";
 import { makeExecutableSchema } from "graphql-tools";
+import GraphQLJSON from "graphql-type-json";
 
 import {
   IsAuthenticatedDirective,
@@ -9,25 +10,24 @@ import {
   HasScopeDirective
 } from "../../src/index";
 
-import dotenv from "dotenv";
-
-dotenv.config();
-
 export const typeDefs = `
 
 directive @hasScope(scopes: [String]) on OBJECT | FIELD_DEFINITION
 directive @hasRole(roles: [Role]) on OBJECT | FIELD_DEFINITION
 directive @isAuthenticated on OBJECT | FIELD_DEFINITION
 
+scalar JSON
+
 enum Role {
-    reader
-    user
+    visitor
     admin
 }
 
 type user {
     id: ID!
     name: String
+    roles: String
+    scopes: JSON
 }
 
 type Item  {
@@ -36,6 +36,7 @@ type Item  {
 }
 
 type Query {
+    me: user @hasScope(scopes: ["me:read"])
     userById(userId: ID!): user @hasScope(scopes: ["user:read"])
     itemById(itemId: ID!): Item @hasScope(scopes: ["item:read"])
 }
@@ -56,6 +57,14 @@ type Mutation {
 
 const resolvers = {
   Query: {
+    me(object, params, ctx, resolveInfo) {
+      return {
+        id: 1,
+        name: ctx.user.name,
+        roles: ctx.user.roles,
+        scopes: ctx.user.scopes
+      };
+    },
     userById(object, params, ctx, resolveInfo) {
       console.log("userById resolver");
       return {
@@ -113,7 +122,7 @@ const schema = makeExecutableSchema({
   }
 });
 
-class ApolloTestServer extends ApolloServer {
+export class ApolloTestServer extends ApolloServer {
   constructor(config) {
     super(config);
     this.context = ({ req }) => {

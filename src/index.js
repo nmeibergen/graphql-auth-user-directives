@@ -9,6 +9,13 @@ import {
   GraphQLString
 } from "graphql";
 
+export const defaultRole = process.env.DEFAULT_ROLE
+  ? process.env.DEFAULT_ROLE
+  : "visitor";
+export const allScopes = process.env.PERMISSIONS
+  ? JSON.parse(Buffer.from(process.env.PERMISSIONS, "base64").toString("utf-8"))
+  : null;
+
 const userMetaMapper = (user, metas) => {
   if (process.env.USER_METAS) {
     metas = process.env.USER_METAS.split(",");
@@ -38,41 +45,50 @@ const userMetaMapper = (user, metas) => {
   return null;
 };
 
-const getScopesFromUser = (
-  user,
-  permissions = null,
-  defaultRole = "visitor"
-) => {
-  if (process.env.DEFAULT_ROLE) {
-    defaultRole = process.env.DEFAULT_ROLE;
-  }
-
-  if (process.env.PERMISSIONS) {
-    const buff = Buffer.from(process.env.PERMISSIONS, "base64");
-    permissions = JSON.parse(buff.toString("utf-8"));
-  }
-
-  if (user == null && permissions) {
-    return permissions[defaultRole];
-  }
-
-  if (user) {
-    const role = user.role || user.roles || user.Role || user.Roles;
-    const scopes = user.scope || user.scopes || user.Scope || user.Scopes;
-
-    if (permissions == null && scopes) {
-      return scopes;
-    } else if (role && permissions[role]) {
-      return permissions[role];
-    } else if (scopes) {
-      return scopes;
-    } else if (permissions && permissions[defaultRole]) {
-      return permissions[defaultRole];
+const getRolesAndScopes = (user, defaultRole, allScopes) => {
+  // No user provided but scopes exists
+  if (user == null) {
+    if (allScopes) {
+      return {
+        roles: defaultRole,
+        scopes: allScopes[defaultRole]
+      };
     } else {
-      return null;
+      AuthorizationError({
+        message: "No default scopes exists for a guest user."
+      });
     }
   } else {
-    return null;
+    // case: user exists
+    const roles =
+      user.role || user.roles || user.Role || user.Roles || defaultRole;
+    const userScopes = user.scope || user.scopes || user.Scope || user.scopes;
+
+    if (userScopes) {
+      // scopes are provided, take that as leading
+      return {
+        roles: null,
+        scopes: userScopes
+      };
+    }
+
+    if (allScopes == null) {
+      AuthorizationError({
+        message: "No application scopes exists nor any user scopes."
+      });
+    } else {
+      // case: allScopes does exists
+      if (roles) {
+        return {
+          roles,
+          scopes: allScopes[roles]
+        };
+      } else {
+        AuthorizationError({
+          message: "No role could be attached to the user."
+        });
+      }
+    }
   }
 };
 
@@ -107,7 +123,7 @@ export const verifyAndDecodeToken = ({ context }) => {
     return userMetaMapper(decoded); // finally map url metas to metas
   } catch (err) {
     throw new AuthorizationError({
-      message: "You are not authorized for this resource"
+      message: "You are not authorized for this resource."
     });
   }
 };
@@ -120,7 +136,7 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
       args: {
         scopes: {
           type: new GraphQLList(GraphQLString),
-          defaultValue: "none:read"
+          defaultValue: ["none:read"]
         }
       }
     });
@@ -133,19 +149,35 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
 
     // wrap resolver with auth check
     field.resolve = function(result, args, context, info) {
+      let authenticationError = null;
       try {
         context.user = verifyAndDecodeToken({ context });
       } catch (e) {
-        // nothing to catch
+        authenticationError = e;
       }
 
-      const scopes = getScopesFromUser(context.user);
+      const rolesAndScopes = getRolesAndScopes(
+        context.user,
+        defaultRole,
+        allScopes
+      );
+      context.user = { ...context.user, ...rolesAndScopes }; // create or extend
 
-      if (
-        scopes !== null &&
-        expectedScopes.some(scope => scopes.indexOf(scope) !== -1)
-      ) {
-        return next(result, args, context, info);
+      try {
+        if (
+          context.user.scopes !== null &&
+          expectedScopes.some(scope => {
+            return context.user.scopes.indexOf(scope) !== -1;
+          })
+        ) {
+          return next(result, args, context, info);
+        }
+      } catch (e) {
+        const test = 1;
+      }
+
+      if (context.user.roles === defaultRole && authenticationError) {
+        throw authenticationError;
       }
 
       throw new AuthorizationError({
@@ -162,20 +194,33 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
       const field = fields[fieldName];
       const next = field.resolve;
       field.resolve = function(result, args, context, info) {
+        let authenticationError = null;
         try {
           context.user = verifyAndDecodeToken({ context });
         } catch (e) {
-          // nothing to catch
+          authenticationError = e;
         }
 
-        const scopes = getScopesFromUser(context.user);
+        const rolesAndScopes = getRolesAndScopes(
+          context.user,
+          defaultRole,
+          allScopes
+        );
+        context.user = { ...context.user, ...rolesAndScopes }; // create or extend
 
         if (
-          scopes !== null &&
-          expectedScopes.some(role => scopes.indexOf(role) !== -1)
+          context.user.scopes !== null &&
+          expectedScopes.some(
+            scope => context.user.scopes.indexOf(scope) !== -1
+          )
         ) {
           return next(result, args, context, info);
         }
+
+        if (context.user.roles === defaultRole && authenticationError) {
+          throw authenticationError;
+        }
+
         throw new AuthorizationError({
           message: "You are not authorized for this resource"
         });

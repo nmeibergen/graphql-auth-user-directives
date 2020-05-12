@@ -1,20 +1,22 @@
 import { createTestClient } from "apollo-server-testing";
+import { scopes } from "../helpers/test-data";
 import { server } from "../helpers/test-setup";
 
 import gql from "graphql-tag";
-import fetch from "node-fetch";
-import { addCatchUndefinedToSchema } from "graphql-tools";
-
-let client;
-
-const headers = {
-  "x-error": "Middleware error"
-};
 
 beforeAll(() => {});
 
 afterAll(async done => {
   done();
+});
+
+beforeEach(() => {
+  server.mergeContext({
+    req: {
+      headers: {}
+    },
+    user: null
+  });
 });
 
 describe("Permissions without a provided token", () => {
@@ -33,11 +35,34 @@ describe("Permissions without a provided token", () => {
     });
 
     expect(result.data.userById).toBeNull();
+    expect(result.errors[0].message).toEqual("No authorization token.");
+  });
+  test("Fail if wrong token is provided", async () => {
+    const token = "awefawe";
+
+    server.mergeContext({
+      req: { headers: { Authorization: `Bearer ${token}` } }
+    });
+
+    const { query, mutate } = createTestClient(server);
+
+    const result = await query({
+      query: gql`
+        {
+          userById(userId: "123456") {
+            id
+            name
+          }
+        }
+      `
+    });
+
+    expect(result.data.userById).toBeNull();
     expect(result.errors[0].message).toEqual(
-      "You are not authorized for this resource"
+      "You are not authorized for this resource."
     );
   });
-  test("Succes if visitor permissions is provided", async () => {
+  test("Success if visitor permissions is provided", async () => {
     const { query, mutate } = createTestClient(server);
 
     try {
@@ -58,7 +83,7 @@ describe("Permissions without a provided token", () => {
       };
 
       expect(result.data.itemById.id).toEqual(expectedResult.id);
-      expect(result.data.itemById.id).toEqual(expectedResult.name);
+      expect(result.data.itemById.name).toEqual(expectedResult.name);
     } catch (e) {
       const x = 1;
     }
@@ -182,4 +207,57 @@ describe("Permission with a provided token", () => {
 
     expect.assertions(2);
   });
+});
+
+describe("Roles and permissions are attached to the user", () => {
+  test("Visitor roles are attached if no token is provided", async () => {
+    const { query, mutate } = createTestClient(server);
+
+    const result = await query({
+      query: gql`
+        query {
+          me {
+            roles
+            scopes
+          }
+        }
+      `
+    });
+
+    expect(result.data.me.roles).toEqual("visitor");
+    expect(result.data.me.scopes).toEqual(scopes.visitor);
+
+    expect.assertions(2);
+  });
+  // test("Admin roles and scopes are attached if a token is provided", async () => {
+  //   const token =
+  //       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTg4ODQ2NjU1LCJleHAiOjE2MjAzODI2NTUsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsInNjb3BlIjoidXNlcjpkZWxldGUifQ.YJ1AFRWLyVINzDKvLZhHHGtrjvLQDGGKa6OcHowedik";
+  //
+  //   server.mergeContext({
+  //     req: { headers: { Authorization: `Bearer ${token}` } }
+  //   });
+  //
+  //   const { query, mutate } = createTestClient(server);
+  //
+  //   try {
+  //     const result = await mutate({
+  //       mutation: gql`
+  //         mutation {
+  //           createUser(id: 1, name: "test") {
+  //             id
+  //           }
+  //         }
+  //       `
+  //     });
+  //
+  //     expect(result.data.createUser).toBeNull();
+  //     expect(result.errors[0].message).toEqual(
+  //         "You are not authorized for this resource"
+  //     );
+  //   } catch (e) {
+  //     const x = 1;
+  //   }
+  //
+  //   expect.assertions(2);
+  // });
 });

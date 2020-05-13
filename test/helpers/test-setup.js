@@ -37,6 +37,8 @@ type Item  {
 
 type Query {
     me: user @hasScope(scopes: ["me:read"])
+    authMe: user @isAuthenticated
+    roleMe: user @hasRole(roles: [visitor, admin])
     userById(userId: ID!): user @hasScope(scopes: ["user:read"])
     itemById(itemId: ID!): Item @hasScope(scopes: ["item:read"])
 }
@@ -58,6 +60,22 @@ type Mutation {
 const resolvers = {
   Query: {
     me(object, params, ctx, resolveInfo) {
+      return {
+        id: 1,
+        name: ctx.user.name,
+        roles: ctx.user.roles,
+        scopes: ctx.user.scopes
+      };
+    },
+    authMe(object, params, ctx, resolveInfo) {
+      return {
+        id: 1,
+        name: ctx.user.name,
+        roles: ctx.user.roles,
+        scopes: ctx.user.scopes
+      };
+    },
+    roleMe(object, params, ctx, resolveInfo) {
       return {
         id: 1,
         name: ctx.user.name,

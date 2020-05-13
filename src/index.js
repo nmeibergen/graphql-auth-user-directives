@@ -54,9 +54,10 @@ const getRolesAndScopes = (user, defaultRole, allScopes) => {
         scopes: allScopes[defaultRole]
       };
     } else {
-      AuthorizationError({
-        message: "No default scopes exists for a guest user."
-      });
+      return {
+        roles: defaultRole,
+        scopes: null
+      };
     }
   } else {
     // case: user exists
@@ -73,9 +74,17 @@ const getRolesAndScopes = (user, defaultRole, allScopes) => {
     }
 
     if (allScopes == null) {
-      AuthorizationError({
-        message: "No application scopes exists nor any user scopes."
-      });
+      // No scopes provided at all, thus return roles only
+      if (roles) {
+        return {
+          roles: roles,
+          scopes: null
+        };
+      } else {
+        AuthorizationError({
+          message: "No roles and scopes exists for the user."
+        });
+      }
     } else {
       // case: allScopes does exists
       if (roles) {
@@ -89,6 +98,10 @@ const getRolesAndScopes = (user, defaultRole, allScopes) => {
         });
       }
     }
+
+    AuthorizationError({
+      message: "No roles and scopes exists for the user."
+    });
   }
 };
 
@@ -248,20 +261,26 @@ export class HasRoleDirective extends SchemaDirectiveVisitor {
     const next = field.resolve;
 
     field.resolve = function(result, args, context, info) {
-      const decoded = verifyAndDecodeToken({ context });
+      let authenticationError = null;
+      try {
+        context.user = verifyAndDecodeToken({ context });
+      } catch (e) {
+        authenticationError = e;
+      }
 
-      // FIXME: override with env var
-      const roles = process.env.AUTH_DIRECTIVES_ROLE_KEY
-        ? decoded[process.env.AUTH_DIRECTIVES_ROLE_KEY] || []
-        : decoded["Roles"] ||
-          decoded["roles"] ||
-          decoded["Role"] ||
-          decoded["role"] ||
-          [];
+      const rolesAndScopes = getRolesAndScopes(
+        context.user,
+        defaultRole,
+        allScopes
+      );
+      context.user = { ...context.user, ...rolesAndScopes }; // create or extend
 
-      if (expectedRoles.some(role => roles.indexOf(role) !== -1)) {
-        context.user = decoded;
+      if (expectedRoles.some(role => context.user.roles.indexOf(role) !== -1)) {
         return next(result, args, context, info);
+      }
+
+      if (context.user.roles === defaultRole && authenticationError) {
+        throw authenticationError;
       }
 
       throw new AuthorizationError({
@@ -277,21 +296,32 @@ export class HasRoleDirective extends SchemaDirectiveVisitor {
     Object.keys(fields).forEach(fieldName => {
       const field = fields[fieldName];
       const next = field.resolve;
+
       field.resolve = function(result, args, context, info) {
-        const decoded = verifyAndDecodeToken({ context });
+        let authenticationError = null;
+        try {
+          context.user = verifyAndDecodeToken({ context });
+        } catch (e) {
+          authenticationError = e;
+        }
 
-        const roles = process.env.AUTH_DIRECTIVES_ROLE_KEY
-          ? decoded[process.env.AUTH_DIRECTIVES_ROLE_KEY] || []
-          : decoded["Roles"] ||
-            decoded["roles"] ||
-            decoded["Role"] ||
-            decoded["role"] ||
-            [];
+        const rolesAndScopes = getRolesAndScopes(
+          context.user,
+          defaultRole,
+          allScopes
+        );
+        context.user = { ...context.user, ...rolesAndScopes }; // create or extend
 
-        if (expectedRoles.some(role => roles.indexOf(role) !== -1)) {
-          context.user = decoded;
+        if (
+          expectedRoles.some(role => context.user.roles.indexOf(role) !== -1)
+        ) {
           return next(result, args, context, info);
         }
+
+        if (context.user.roles === defaultRole && authenticationError) {
+          throw authenticationError;
+        }
+
         throw new AuthorizationError({
           message: "You are not authorized for this resource"
         });
@@ -316,8 +346,14 @@ export class IsAuthenticatedDirective extends SchemaDirectiveVisitor {
       const next = field.resolve;
 
       field.resolve = function(result, args, context, info) {
-        const decoded = verifyAndDecodeToken({ context }); // will throw error if not valid signed jwt
-        context.user = decoded;
+        context.user = verifyAndDecodeToken({ context });
+
+        const rolesAndScopes = getRolesAndScopes(
+          context.user,
+          defaultRole,
+          allScopes
+        );
+        context.user = { ...context.user, ...rolesAndScopes }; // create or extend
         return next(result, args, context, info);
       };
     });
@@ -327,8 +363,15 @@ export class IsAuthenticatedDirective extends SchemaDirectiveVisitor {
     const next = field.resolve;
 
     field.resolve = function(result, args, context, info) {
-      const decoded = verifyAndDecodeToken({ context });
-      context.user = decoded;
+      context.user = verifyAndDecodeToken({ context });
+
+      const rolesAndScopes = getRolesAndScopes(
+        context.user,
+        defaultRole,
+        allScopes
+      );
+      context.user = { ...context.user, ...rolesAndScopes }; // create or extend
+
       return next(result, args, context, info);
     };
   }

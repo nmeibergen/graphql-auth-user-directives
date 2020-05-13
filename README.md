@@ -81,6 +81,8 @@ const client = new ApolloClient({
 });
 ```
 
+If all is set up correctly you should be able to use the directives and resolvers that use any of these directives the roles and/or permissions will be attached to the user which is provided in the context.
+
 ## Configure
 
 Configuration is done via environment variables.
@@ -108,18 +110,18 @@ export AUTH_DIRECTIVES_ROLE_KEY=https://grandstack.io/roles
 ```
 
 (optional)
-If you'd like to work with a JSON based permission file in the following format:
+You can work with scopes both by providing scopes directely in the header, or by providing roles that have scopes attached to them via a JSON specified file, e.g.
 ```sh
 {
   "role1": ["resource1:action1", "resource2:action2"],
   "role2": ["resource3:action3", "resource4:action4"]
 }
 ```
-where provided a role to the encoded user you'd like to use the corresponding permissions. Then setup the JSON in a seperate file and base64 encode it to add is as an environment variable, e.g.
+here provided a role to the encoded user you'd like to use the corresponding permissions. Then setup the JSON in a seperate file and base64 encode it to add is as an environment variable, e.g.
 ```sh
 export PERMISSIONS=ewogICJyb2xlMSI6IFsicmVzb3VyY2UxOmFjdGlvbjEiLCAicmVzb3VyY2UyOmFjdGlvbjIiXSwKICAicm9sZTIiOiBbInJlc291cmNlMzphY3Rpb24zIiwgInJlc291cmNlNDphY3Rpb240Il0KfQ==
 ```
-
+Important note is that at this point in time, this role-based-permissions approach does not yet work with multiple roles.
 Furthermore, if you work with such permission JSON you can provide a default user, e.g. the user that will be applied if authentication fails. Specify the user in your JSON and provide the name of the role as an environment variable, e.g.:
 ```sh
 export DEFAULT_ROLE=visitor

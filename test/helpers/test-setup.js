@@ -4,11 +4,15 @@ import { ApolloServer } from "apollo-server";
 import { makeExecutableSchema } from "graphql-tools";
 import GraphQLJSON from "graphql-type-json";
 
-import {
+const {
   IsAuthenticatedDirective,
   HasRoleDirective,
   HasScopeDirective
-} from "../../src/index";
+} = require("../../src/index");
+
+// const dotenv = require("dotenv");
+
+// dotenv.config();
 
 export const typeDefs = `
 
@@ -163,6 +167,10 @@ export class ApolloTestServer extends ApolloServer {
 
 const server = new ApolloTestServer({
   schema: schema
+  // =======
+  // server.listen(3000).then(({ url }) => {
+  //   console.log(`GraphQL server ready at ${url}`);
+  // >>>>>>> c09bb0fe60447ae7bcb53670a49c8e12dc3cd46b
 });
 
 module.exports.server = server;

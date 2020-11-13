@@ -5,7 +5,6 @@
   "main": "./dist/index.js",
   "scripts": {
     "start": "nodemon ./examples/index.js --exec babel-node -e js",
-    "start-test-setup": "nodemon ./test/helpers/test-setup.js --exec babel-node -e js",
     "test": "jest --runInBand --detectOpenHandles --forceExit",
     "build": "babel src --presets babel-preset-env --out-dir dist",
     "precommit": "lint-staged",
@@ -24,6 +23,7 @@
     "apollo-server": "^2.2.5",
     "babel-cli": "^6.26.0",
     "dotenv-override": "^5.0.1",
+    "dotenv": "^6.2.0",
     "babel-preset-env": "^1.7.0",
     "graphql-type-json": "^0.3.1",
     "husky": "^1.1.2",

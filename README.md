@@ -52,6 +52,14 @@ const server = new ApolloServer({
 });
 ```
 
+In the case that the token was decoded with no errors the `context.user` will store the payload from the token
+
+```js
+me: (parent, args, context) => {
+      console.log(context.user.id);
+}
+```
+
 A JWT must then be included in each GraphQL request in the Authorization header. For example, with Apollo Client:
 
 ```js
@@ -88,25 +96,15 @@ If all is set up correctly you should be able to use the directives and resolver
 Configuration is done via environment variables.
 
 (required)
-You must set the `JWT_SECRET` environment variable:
+There are two variables to control how tokens are processed.
+If you would like the server to verify the tokens used in a request, you must provide the secret used to encode the token in the `JWT_SECRET` variable. Otherwise you will need to set `JWT_NO_VERIFY` to true.
 
 ```sh
-export JWT_SECRET=><YOUR_JWT_SECRET_KEY_HERE>
+export JWT_NO_VERIFY=true //Server does not have the secret, but will need to decode tokens
 ```
-
-(optional)
-By default `@hasRole` will validate the `roles`, `role`, `Roles`, or `Role` claim (whichever is found first). You can override this by setting `AUTH_DIRECTIVES_ROLE_KEY` environment variable. For example, if your role claim is stored in the JWT like this
-
+or
 ```sh
-"https://grandstack.io/roles": [
-    "admin"
-]
-```
-
-Set:
-
-```sh
-export AUTH_DIRECTIVES_ROLE_KEY=https://grandstack.io/roles
+export JWT_SECRET=><YOUR_JWT_SECRET_KEY_HERE> //Server has the secret and will verify authenticity
 ```
 
 (optional)
@@ -132,6 +130,20 @@ Finally, in some cases the roles and or scopes in the decoded user object may co
 export USER_METAS="roles,scopes"
 ```
 
+## Running Tests Locally
+
+1. create ./test/helpers/.env
+2. add relevant values
+3. run the test server
+```sh
+npx babel-node test/helpers/test-setup.js
+```
+4. run the tests
+```sh
+npx ava test/*.js
+```
+
+
 ## Test JWTs
 
 Scopes: user:CRUD
@@ -141,5 +153,5 @@ key: qwertyuiopasdfghjklzxcvbnm123456
 ~~~
 
 ~~~
-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTQ5MTQ1Mjk0LCJleHAiOjE1ODA2ODEzMDcsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsIlJvbGUiOiJBRE1JTiIsIlNjb3BlIjpbIlVzZXI6UmVhZCIsIlVzZXI6Q3JlYXRlIiwiVXNlcjpVcGRhdGUiLCJVc2VyOkRlbGV0ZSJdfQ.nKADki8iKTpKqq3CVdrGAUrSzSBmFolWzYOsA_ULSdo
+eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTQ5MTQ1Mjk0LCJleHAiOjE2OTE3ODEzMDcsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsIlJvbGUiOiJBRE1JTiIsIlNjb3BlIjpbIlVzZXI6UmVhZCIsIlVzZXI6Q3JlYXRlIiwiVXNlcjpVcGRhdGUiLCJVc2VyOkRlbGV0ZSJdfQ.WJffOec05r8KuzW76asax1iCzv5q4rwRv9kvFyw7c_E
 ~~~

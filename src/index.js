@@ -114,30 +114,41 @@ export const verifyAndDecodeToken = ({ context }) => {
   if (
     !req ||
     !req.headers ||
-    (!req.headers.authorization && !req.headers.Authorization)
+    (!req.headers.authorization && !req.headers.Authorization) ||
+    (!req && !req.cookies && !req.cookies.token)
   ) {
     throw new AuthorizationError({ message: "No authorization token." });
   }
 
-  const token = req.headers.authorization || req.headers.Authorization;
+  const token =
+    req.headers.authorization || req.headers.Authorization || req.cookies.token;
   try {
     const id_token = token.replace("Bearer ", "");
-    const JWT_SECRET = process.env.JWT_SECRET;
+    const { JWT_SECRET, JWT_NO_VERIFY } = process.env;
 
-    if (!JWT_SECRET) {
-      throw new Error(
-        "No JWT secret set. Set environment variable JWT_SECRET to decode token."
-      );
+    if (!JWT_SECRET && JWT_NO_VERIFY) {
+      return jwt.decode(id_token);
+    } else {
+      return jwt.verify(id_token, JWT_SECRET, {
+        algorithms: ["HS256", "RS256"]
+      });
     }
+
     const decoded = jwt.verify(id_token, JWT_SECRET, {
       algorithms: ["HS256", "RS256"]
     });
 
     return userMetaMapper(decoded); // finally map url metas to metas
   } catch (err) {
-    throw new AuthorizationError({
-      message: "You are not authorized for this resource."
-    });
+    if (err.name === "TokenExpiredError") {
+      throw new AuthorizationError({
+        message: "Your token is expired"
+      });
+    } else {
+      throw new AuthorizationError({
+        message: "You are not authorized for this resource."
+      });
+    }
   }
 };
 
@@ -169,6 +180,7 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
         authenticationError = e;
       }
 
+      // NATHAN PART
       const rolesAndScopes = getRolesAndScopes(
         context.user,
         defaultRole,
@@ -191,10 +203,26 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
 
       if (context.user.roles === defaultRole && authenticationError) {
         throw authenticationError;
+        // END NATHAN
+
+        // // START REGULAR PACKAGE
+        // const scopes = process.env.AUTH_DIRECTIVES_SCOPE_KEY
+        //   ? decoded[process.env.AUTH_DIRECTIVES_SCOPE_KEY] || []
+        //   : decoded["permissions"] ||
+        //     decoded["Permissions"] ||
+        //     decoded["Scopes"] ||
+        //     decoded["scopes"] ||
+        //     decoded["Scope"] ||
+        //     decoded["scope"] ||
+        //     [];
+        //
+        // if (expectedScopes.some(scope => scopes.indexOf(scope) !== -1)) {
+        //   return next(result, args, { ...context, user: decoded }, info);
+        // // END REGULAR PACKAGE
       }
 
       throw new AuthorizationError({
-        message: "You are not authorized for this resource"
+        message: "You are not authorized for this resource."
       });
     };
   }
@@ -235,7 +263,7 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
         }
 
         throw new AuthorizationError({
-          message: "You are not authorized for this resource"
+          message: "You are not authorized for this resource."
         });
       };
     });
@@ -284,7 +312,7 @@ export class HasRoleDirective extends SchemaDirectiveVisitor {
       }
 
       throw new AuthorizationError({
-        message: "You are not authorized for this resource"
+        message: "You are not authorized for this resource."
       });
     };
   }
@@ -323,7 +351,7 @@ export class HasRoleDirective extends SchemaDirectiveVisitor {
         }
 
         throw new AuthorizationError({
-          message: "You are not authorized for this resource"
+          message: "You are not authorized for this resource."
         });
       };
     });

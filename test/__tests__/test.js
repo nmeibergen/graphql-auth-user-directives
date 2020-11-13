@@ -56,7 +56,8 @@ describe("Permissions without a provided token", () => {
         }
       `
     });
-
+    console.log("result.errors[0].message");
+    console.log(result.errors[0].message);
     expect(result.data.userById).toBeNull();
     expect(result.errors[0].message).toEqual(
       "You are not authorized for this resource."

@@ -142,17 +142,14 @@ export const verifyAndDecodeToken = ({ context }) => {
     const id_token = token.replace("Bearer ", "");
     const { JWT_SECRET, JWT_NO_VERIFY } = process.env;
 
+    let decoded = null;
     if (!JWT_SECRET && JWT_NO_VERIFY) {
-      return jwt.decode(id_token);
+      decoded = jwt.decode(id_token);
     } else {
-      return jwt.verify(id_token, JWT_SECRET, {
+      decoded = jwt.verify(id_token, JWT_SECRET, {
         algorithms: ["HS256", "RS256"]
       });
     }
-
-    const decoded = jwt.verify(id_token, JWT_SECRET, {
-      algorithms: ["HS256", "RS256"]
-    });
 
     return userMetaMapper(decoded); // finally map url metas to metas
   } catch (err) {

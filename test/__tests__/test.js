@@ -251,9 +251,9 @@ describe("@hasScope: Roles and permissions are attached to the user", () => {
     expect(result.data.me.roles).toEqual("admin");
     expect(result.data.me.scopes).toEqual(scopes.admin);
   });
-  test("Admin roles and scopes are attached if a token is provided with multiple roles", async () => {
+  test("Admin roles and scopes are attached if a token is provided with multiple roles - using meta mapper: https://www.example.com/role", async () => {
     const token =
-      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2MDUyODIwNjgsImV4cCI6MTc2MzA0ODQ2OCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6Ik5hdGhhbiIsIlN1cm5hbWUiOiJNZWliZXJnZW4iLCJFbWFpbCI6Im5tQGVpLmNvbSIsInJvbGUiOlsiYWRtaW4iLCJlZGl0b3IiXX0.J_kZ5fTWGEqVX8FyRibhUQ9TRmSqF_tWaPur2_PuQw0";
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2MDUyODIwNjgsImV4cCI6MTc2MzA0ODQ2OCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6Ik5hdGhhbiIsIlN1cm5hbWUiOiJNZWliZXJnZW4iLCJFbWFpbCI6Im5tQGVpLmNvbSIsImh0dHA6Ly93d3cuZXhhbXBsZS5jb20vcm9sZSI6WyJhZG1pbiIsImVkaXRvciJdfQ.TOP75bHu-lI4ZXRBl7L5cud_W68L1u9r9DtBH3qRnFs";
 
     server.mergeContext({
       req: { headers: { Authorization: `Bearer ${token}` } }

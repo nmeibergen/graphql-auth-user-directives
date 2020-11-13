@@ -88,10 +88,26 @@ const getRolesAndScopes = (user, defaultRole, allScopes) => {
     } else {
       // case: allScopes does exists
       if (roles) {
-        return {
-          roles,
-          scopes: allScopes[roles]
-        };
+        // a single scope is provided
+        if (typeof roles === "string") {
+          return {
+            roles,
+            scopes: allScopes[roles]
+          };
+        }
+        // if multiple roles are provided the scopes are concatenated
+        if (Array.isArray(roles)) {
+          const scopesArray = roles.map(role => allScopes[role]);
+          let allScopesForUser = [].concat.apply([], scopesArray); // concatenate scopes
+          // Get the unique scopes
+          allScopesForUser = allScopesForUser.filter((value, index, self) => {
+            return self.indexOf(value) === index;
+          });
+          return {
+            roles,
+            scopes: allScopesForUser
+          };
+        }
       } else {
         AuthorizationError({
           message: "No role could be attached to the user."
@@ -180,14 +196,12 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
         authenticationError = e;
       }
 
-      // NATHAN PART
       const rolesAndScopes = getRolesAndScopes(
         context.user,
         defaultRole,
         allScopes
       );
       context.user = { ...context.user, ...rolesAndScopes }; // create or extend
-
       try {
         if (
           context.user.scopes !== null &&
@@ -203,22 +217,6 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
 
       if (context.user.roles === defaultRole && authenticationError) {
         throw authenticationError;
-        // END NATHAN
-
-        // // START REGULAR PACKAGE
-        // const scopes = process.env.AUTH_DIRECTIVES_SCOPE_KEY
-        //   ? decoded[process.env.AUTH_DIRECTIVES_SCOPE_KEY] || []
-        //   : decoded["permissions"] ||
-        //     decoded["Permissions"] ||
-        //     decoded["Scopes"] ||
-        //     decoded["scopes"] ||
-        //     decoded["Scope"] ||
-        //     decoded["scope"] ||
-        //     [];
-        //
-        // if (expectedScopes.some(scope => scopes.indexOf(scope) !== -1)) {
-        //   return next(result, args, { ...context, user: decoded }, info);
-        // // END REGULAR PACKAGE
       }
 
       throw new AuthorizationError({
@@ -247,6 +245,7 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
           defaultRole,
           allScopes
         );
+
         context.user = { ...context.user, ...rolesAndScopes }; // create or extend
 
         if (

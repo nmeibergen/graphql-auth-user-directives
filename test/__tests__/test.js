@@ -56,8 +56,7 @@ describe("Permissions without a provided token", () => {
         }
       `
     });
-    console.log("result.errors[0].message");
-    console.log(result.errors[0].message);
+
     expect(result.data.userById).toBeNull();
     expect(result.errors[0].message).toEqual(
       "You are not authorized for this resource."
@@ -251,6 +250,30 @@ describe("@hasScope: Roles and permissions are attached to the user", () => {
 
     expect(result.data.me.roles).toEqual("admin");
     expect(result.data.me.scopes).toEqual(scopes.admin);
+  });
+  test("Admin roles and scopes are attached if a token is provided with multiple roles", async () => {
+    const token =
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2MDUyODIwNjgsImV4cCI6MTc2MzA0ODQ2OCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6Ik5hdGhhbiIsIlN1cm5hbWUiOiJNZWliZXJnZW4iLCJFbWFpbCI6Im5tQGVpLmNvbSIsInJvbGUiOlsiYWRtaW4iLCJlZGl0b3IiXX0.J_kZ5fTWGEqVX8FyRibhUQ9TRmSqF_tWaPur2_PuQw0";
+
+    server.mergeContext({
+      req: { headers: { Authorization: `Bearer ${token}` } }
+    });
+
+    const { query, mutate } = createTestClient(server);
+
+    const result = await query({
+      query: gql`
+        query {
+          me {
+            roles
+            scopes
+          }
+        }
+      `
+    });
+
+    expect(result.data.me.roles).toEqual(["admin", "editor"]);
+    expect(result.data.me.scopes).toEqual(scopes.admin.concat(scopes.editor));
   });
 });
 

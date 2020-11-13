@@ -30,7 +30,7 @@ enum Role {
 type user {
     id: ID!
     name: String
-    roles: String
+    roles: JSON
     scopes: JSON
 }
 
@@ -88,14 +88,12 @@ const resolvers = {
       };
     },
     userById(object, params, ctx, resolveInfo) {
-      console.log("userById resolver");
       return {
         id: params.userId,
         name: "bob"
       };
     },
     itemById(object, params, ctx, resolveInfo) {
-      console.log("itemById resolver");
       return {
         id: "123",
         name: "bob"
@@ -103,34 +101,24 @@ const resolvers = {
     }
   },
   Mutation: {
+    createItem(object, params, ctx, resolveInfo) {
+      return {
+        id: 1
+      };
+    },
     createUser(object, params, ctx, resolveInfo) {
       // createUser mutation should never be called
       throw new Error("createUser resolver called");
     },
-    createItem(object, params, ctx, resolveInfo) {
-      console.log("createItem resolver");
-      return {
-        id: 1
-      };
-    },
-    updateUser(object, params, ctx, resolveInfo) {
-      console.log("updateUser resolver");
-    },
-    updateItem(object, params, ctx, resolveInfo) {
-      console.log("updateItem resolver");
-    },
+    updateUser(object, params, ctx, resolveInfo) {},
+    updateItem(object, params, ctx, resolveInfo) {},
     deleteUser(object, params, ctx, resolveInfo) {
-      console.log("deleteUser resolver");
       return {
         id: 1
       };
     },
-    deleteItem(object, params, ctx, resolveInfo) {
-      console.log("deleteItem resolver");
-    },
-    addUserItemRelationship(object, params, ctx, resolveInfo) {
-      console.log("addUserItemRelationship resolver");
-    }
+    deleteItem(object, params, ctx, resolveInfo) {},
+    addUserItemRelationship(object, params, ctx, resolveInfo) {}
   }
 };
 

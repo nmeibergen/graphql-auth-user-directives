@@ -2814,6 +2814,11 @@ dotenv-override@^5.0.1:
   resolved "https://registry.yarnpkg.com/dotenv-override/-/dotenv-override-5.0.1.tgz#e431bc0f0325759028974845b74bedb51390b9d1"
   integrity sha512-LyvcddQIaEByl3MMOuFBT7u3j5s8EQq7llIyL788ghuKPSDYWd5OQoOJ8+uL2QgYupQ6t976P8k6mubM0l9mHg==
 
+dotenv@^6.2.0:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
+  integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
+
 duplexer3@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/duplexer3/-/duplexer3-0.1.4.tgz#ee01dd1cac0ed3cbc7fdbea37dc0a8f1ce002ce2"
@@ -5312,9 +5317,9 @@ object-keys@^1.0.11, object-keys@^1.0.12, object-keys@^1.1.1:
   integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
 
 object-path@^0.11.4:
-  version "0.11.4"
-  resolved "https://registry.yarnpkg.com/object-path/-/object-path-0.11.4.tgz#370ae752fbf37de3ea70a861c23bba8915691949"
-  integrity sha1-NwrnUvvzfePqcKhhwju6iRVpGUk=
+  version "0.11.5"
+  resolved "https://registry.yarnpkg.com/object-path/-/object-path-0.11.5.tgz#d4e3cf19601a5140a55a16ad712019a9c50b577a"
+  integrity sha512-jgSbThcoR/s+XumvGMTMf81QVBmah+/Q7K7YduKeKVWL7N111unR2d6pZZarSk6kY/caeNxUDyxOvMWyzoU2eg==
 
 object-visit@^1.0.0:
   version "1.0.1"

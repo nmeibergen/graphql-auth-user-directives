@@ -132,15 +132,13 @@ export USER_METAS="roles,scopes"
 
 ## Running Tests Locally
 
-1. create ./test/helpers/.env
-2. add relevant values
-3. run the test server
+You'll need to set node 13 or higher (due to the triple dot operator).
 ```sh
-npx babel-node test/helpers/test-setup.js
+nvm use 13
 ```
-4. run the tests
+Then run the tests by performing
 ```sh
-npx ava test/*.js
+yarn test
 ```
 
 

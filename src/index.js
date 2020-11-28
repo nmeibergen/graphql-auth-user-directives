@@ -8,6 +8,7 @@ import {
   GraphQLList,
   GraphQLString
 } from "graphql";
+import * as permissions from "./permissions";
 
 export const defaultRole = process.env.DEFAULT_ROLE
   ? process.env.DEFAULT_ROLE
@@ -185,7 +186,7 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
     const next = field.resolve;
 
     // wrap resolver with auth check
-    field.resolve = function(result, args, context, info) {
+    field.resolve = async (result, args, context, info) => {
       let authenticationError = null;
       try {
         context.user = verifyAndDecodeToken({ context });
@@ -202,9 +203,13 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
       try {
         if (
           context.user.scopes !== null &&
-          expectedScopes.some(scope => {
-            return context.user.scopes.indexOf(scope) !== -1;
-          })
+          (await permissions.satisfiesScopes(
+            context.driver,
+            expectedScopes,
+            context.user.scopes,
+            context.user.uid,
+            ""
+          ))
         ) {
           return next(result, args, context, info);
         }
@@ -229,7 +234,8 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
     Object.keys(fields).forEach(fieldName => {
       const field = fields[fieldName];
       const next = field.resolve;
-      field.resolve = function(result, args, context, info) {
+
+      field.resolve = async (result, args, context, info) => {
         let authenticationError = null;
         try {
           context.user = verifyAndDecodeToken({ context });
@@ -247,9 +253,13 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
 
         if (
           context.user.scopes !== null &&
-          expectedScopes.some(
-            scope => context.user.scopes.indexOf(scope) !== -1
-          )
+          (await permissions.satisfiesScopes(
+            context.driver,
+            expectedScopes,
+            context.user.scopes,
+            context.user.uid,
+            ""
+          ))
         ) {
           return next(result, args, context, info);
         }

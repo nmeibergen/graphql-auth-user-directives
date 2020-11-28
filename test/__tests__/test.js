@@ -142,7 +142,7 @@ describe("Permission with a provided token", () => {
 
       expect(result.data.createUser).toBeNull();
       expect(result.errors[0].message).toEqual(
-        "You are not authorized for this resource"
+        "You are not authorized for this resource."
       );
     } catch (e) {
       const x = 1;
@@ -199,7 +199,7 @@ describe("Permission with a provided token", () => {
 
       expect(result.data.createUser).toBeNull();
       expect(result.errors[0].message).toEqual(
-        "You are not authorized for this resource"
+        "You are not authorized for this resource."
       );
     } catch (e) {
       const x = 1;
@@ -274,6 +274,195 @@ describe("@hasScope: Roles and permissions are attached to the user", () => {
 
     expect(result.data.me.roles).toEqual(["admin", "editor"]);
     expect(result.data.me.scopes).toEqual(scopes.admin.concat(scopes.editor));
+  });
+  test("Unauthorised if conditional permission is not satisfies", async () => {
+    const token =
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2MDY1NjYzMTYsImV4cCI6MTYzODEwMjMxNiwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJodHRwOi8vd3d3LmV4YW1wbGUuY29tL3JvbGUiOiJlZGl0b3IifQ.66saNhPHBzNBOCXnuR4JptnKOKTPpCr0KjRqhvLcc5U";
+
+    // mock driver query function
+    let query_result = new Map();
+    let query_result_error = new Map();
+    query_result.set("result", false);
+    query_result_error.set("result", true);
+    const driver = {
+      session: () => {
+        return {
+          run: async query => {
+            if (
+              query ===
+              `WITH false AS result
+            WITH false as is_allowed, result
+            WITH result OR is_allowed as result
+    RETURN result as result`
+            ) {
+              return { records: [query_result] };
+            } else {
+              return { records: [query_result_error] };
+            }
+          }
+        };
+      }
+    };
+
+    server.mergeContext({
+      req: { headers: { Authorization: `Bearer ${token}` } },
+      driver: driver
+    });
+
+    const { query, mutate } = createTestClient(server);
+
+    const result = await mutate({
+      mutation: gql`
+        mutation {
+          updateItemConditionfalse(id: 1, name: "newname") {
+            id
+            name
+          }
+        }
+      `
+    });
+
+    expect(result.errors[0].message).toEqual(
+      "You are not authorized for this resource."
+    );
+  });
+  test("Authorised if conditional permission is satisfied", async () => {
+    // mock driver query function
+    let query_result = new Map();
+    let query_result_error = new Map();
+    query_result.set("result", true);
+    query_result_error.set("result", false);
+    const driver = {
+      session: () => {
+        return {
+          run: async query => {
+            if (
+              query ===
+              `WITH false AS result
+            WITH true as is_allowed, result
+            WITH result OR is_allowed as result
+    RETURN result as result`
+            ) {
+              return { records: [query_result] };
+            } else {
+              return { records: [query_result_error] };
+            }
+          }
+        };
+      }
+    };
+
+    server.mergeContext({
+      req: {},
+      driver: driver
+    });
+
+    const { query, mutate } = createTestClient(server);
+
+    const result = await mutate({
+      mutation: gql`
+        mutation {
+          updateItemConditiontrue(id: 1, name: "newname") {
+            id
+            name
+          }
+        }
+      `
+    });
+
+    expect(result.data.updateItemConditiontrue.id).toEqual("123");
+  });
+  test("Conditional permission is checked if the equivalent nonconditional scope is required", async () => {
+    // mock driver query function
+    let query_result = new Map();
+    let query_result_error = new Map();
+    query_result.set("result", true);
+    query_result_error.set("result", false);
+    const driver = {
+      session: () => {
+        return {
+          run: async query => {
+            if (
+              query ===
+              `WITH false AS result
+            WITH true as is_allowed, result
+            WITH result OR is_allowed as result
+    RETURN result as result`
+            ) {
+              return { records: [query_result] };
+            } else {
+              return { records: [query_result_error] };
+            }
+          }
+        };
+      }
+    };
+
+    server.mergeContext({
+      req: {},
+      driver: driver
+    });
+
+    const { query, mutate } = createTestClient(server);
+
+    const result = await mutate({
+      mutation: gql`
+        mutation {
+          updateItem(id: 1, name: "newname") {
+            id
+            name
+          }
+        }
+      `
+    });
+
+    expect(result.data.updateItem.id).toEqual("123");
+  });
+  test("Multiple conditional permissions are successfully handled", async () => {
+    // mock driver query function
+    let query_result = new Map();
+    let query_result_error = new Map();
+    query_result.set("result", true);
+    query_result_error.set("result", false);
+    const driver = {
+      session: () => {
+        return {
+          run: async query => {
+            if (
+              query ===
+              `WITH false AS result
+            WITH true as is_allowed, result
+            WITH result OR is_allowed as result
+    RETURN result as result`
+            ) {
+              return { records: [query_result] };
+            } else {
+              return { records: [query_result_error] };
+            }
+          }
+        };
+      }
+    };
+
+    server.mergeContext({
+      req: {},
+      driver: driver
+    });
+
+    const { query, mutate } = createTestClient(server);
+
+    const result = await mutate({
+      mutation: gql`
+        mutation {
+          updateItemMultiCondition(id: 1, name: "newname") {
+            id
+            name
+          }
+        }
+      `
+    });
+
+    expect(result.data.updateItemMultiCondition.id).toEqual("123");
   });
 });
 

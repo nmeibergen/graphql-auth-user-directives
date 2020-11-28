@@ -46,6 +46,11 @@
   "jest": {
     "verbose": true,
     "globalSetup": "<rootDir>/test/setup.js",
+    "moduleDirectories": [
+      "node_modules",
+      "src",
+      "tests"
+    ],
     "projects": [
       {
         "testTimeout": 10000

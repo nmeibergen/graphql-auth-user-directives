@@ -3,6 +3,7 @@
 import { ApolloServer } from "apollo-server";
 import { makeExecutableSchema } from "graphql-tools";
 import GraphQLJSON from "graphql-type-json";
+import * as permissions from "../../src/permissions";
 
 const {
   IsAuthenticatedDirective,
@@ -24,6 +25,7 @@ scalar JSON
 
 enum Role {
     visitor
+    editor
     admin
 }
 
@@ -53,13 +55,30 @@ type Mutation {
 
     updateUser(id: ID!, name: String): user @hasScope(scopes: ["user:update"])
     updateItem(id: ID!, name: String): Item @hasScope(scopes: ["item:update"])
-
+  
+    updateItemConditiontrue(id: ID!, name: String): Item @hasScope(scopes: ["item:update:conditiontrue"])
+    updateItemConditionfalse(id: ID!, name: String): Item @hasScope(scopes: ["item:update:conditionfalse"])
+    updateItemMultiCondition(id: ID!, name: String): Item @hasScope(scopes: ["item:update:conditionfalse", "item:update:conditiontrue"])
+    
     deleteUser(id: ID!): user @hasScope(scopes: ["user:delete"])
     deleteItem(id: ID!): Item @hasScope(scopes: ["item:delete"])
     
     addUserItemRelationship(userId: ID!, itemId: ID!): user @hasScope(scopes: ["user:create", "item:create"])
 }
 `;
+
+permissions.conditionalQueryMap.set(
+  "item:conditiontrue",
+  (userId, objectId) => {
+    return `WITH true as is_allowed`;
+  }
+);
+permissions.conditionalQueryMap.set(
+  "item:conditionfalse",
+  (userId, objectId) => {
+    return `WITH false as is_allowed`;
+  }
+);
 
 const resolvers = {
   Query: {
@@ -111,7 +130,30 @@ const resolvers = {
       throw new Error("createUser resolver called");
     },
     updateUser(object, params, ctx, resolveInfo) {},
-    updateItem(object, params, ctx, resolveInfo) {},
+    updateItem(object, params, ctx, resolveInfo) {
+      return {
+        id: "123",
+        name: "bob"
+      };
+    },
+    updateItemConditiontrue(object, params, ctx, resolveInfo) {
+      return {
+        id: "123",
+        name: "conditiontrue"
+      };
+    },
+    updateItemConditionfalse(object, params, ctx, resolveInfo) {
+      return {
+        id: "123",
+        name: "conditionfalse"
+      };
+    },
+    updateItemMultiCondition(object, params, ctx, resolveInfo) {
+      return {
+        id: "123",
+        name: "conditionfalse"
+      };
+    },
     deleteUser(object, params, ctx, resolveInfo) {
       return {
         id: 1

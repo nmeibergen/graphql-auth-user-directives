@@ -161,8 +161,6 @@ This object id is extracted from the provided parameters in Apollo. Usually it w
 provide preference for `id` followed by `uid`. You can change this by setting the environment variable 
 `OBJECT_IDENTIFIER`. By default it is thus set to the string `"id", "uid"`.  
 
-Set the query for the condition, e.g. for `isOwner`.
-
 #### Separately checking conditional permissions
 You may want to verify conditional permissions separately, e.g. to check whether the frontend should present a piece of 
 code. Therefore you can now call the conditional permission check function:

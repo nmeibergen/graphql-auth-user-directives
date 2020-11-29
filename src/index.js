@@ -8,14 +8,26 @@ import {
   GraphQLList,
   GraphQLString
 } from "graphql";
-import * as permissions from "./permissions";
+import {
+  satisfiesScopes,
+  satisfiesConditionalScopes,
+  conditionalQueryMap
+} from "./permissions";
 
+// export some from permissions
+export { satisfiesConditionalScopes, conditionalQueryMap };
+
+// export the defaultRole and allScopes
 export const defaultRole = process.env.DEFAULT_ROLE
   ? process.env.DEFAULT_ROLE
   : "visitor";
 export const allScopes = process.env.PERMISSIONS
   ? JSON.parse(Buffer.from(process.env.PERMISSIONS, "base64").toString("utf-8"))
   : null;
+
+const objectIdIdentifier = process.env.OBJECT_IDENTIFIER
+  ? process.env.OBJECT_IDENTIFIER.split(",").map(s => s.trim())
+  : ["id", "uid"];
 
 const userMetaMapper = (user, metas) => {
   if (process.env.USER_METAS) {
@@ -122,7 +134,7 @@ const getRolesAndScopes = (user, defaultRole, allScopes) => {
   }
 };
 
-export const verifyAndDecodeToken = ({ context }) => {
+const verifyAndDecodeToken = ({ context }) => {
   const req =
     context instanceof IncomingMessage
       ? context
@@ -200,14 +212,18 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
         allScopes
       );
       context.user = { ...context.user, ...rolesAndScopes }; // create or extend
+      const existingIds = objectIdIdentifier.filter(id =>
+        args.hasOwnProperty(id)
+      );
+      const objectId = existingIds.length > 0 ? args[existingIds[0]] : null;
       if (
         context.user.scopes !== null &&
-        (await permissions.satisfiesScopes(
+        (await satisfiesScopes(
           context.driver,
           expectedScopes,
           context.user.scopes,
-          context.user.uid,
-          ""
+          context.user,
+          objectId
         ))
       ) {
         return next(result, args, context, info);
@@ -246,15 +262,18 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
         );
 
         context.user = { ...context.user, ...rolesAndScopes }; // create or extend
-
+        const existingIds = objectIdIdentifier.filter(id =>
+          args.hasOwnProperty(id)
+        );
+        const objectId = existingIds.length > 0 ? args[existingIds[0]] : null;
         if (
           context.user.scopes !== null &&
-          (await permissions.satisfiesScopes(
+          (await satisfiesScopes(
             context.driver,
             expectedScopes,
             context.user.scopes,
-            context.user.uid,
-            ""
+            context.user,
+            objectId // take the object id to be either id or uid, providing preference to id
           ))
         ) {
           return next(result, args, context, info);

@@ -1,4 +1,4 @@
-import { UserInputError, ApolloError } from "apollo-server";
+import { UserInputError } from "apollo-server";
 
 // dictionary with indicator of condition and function to retrieve conditional query based on userId and crudObjectId
 export let conditionalQueryMap = new Map(); // initialize as empty map -> editable by end user
@@ -7,7 +7,7 @@ export const satisfiesScopes = async (
   driver,
   scopes,
   userScopes,
-  userId,
+  user,
   objectId
 ) => {
   if (!Array.isArray(scopes)) scopes = [scopes];
@@ -41,7 +41,7 @@ export const satisfiesScopes = async (
     return await checkConditionalScopes(
       driver,
       conditionalScopes,
-      userId,
+      user,
       objectId
     );
   } else {
@@ -53,7 +53,7 @@ export const satisfiesConditionalScopes = async (
   driver,
   scopes,
   userScopes,
-  userId,
+  user,
   objectId,
   no_intersection_result = false
 ) => {
@@ -70,7 +70,7 @@ export const satisfiesConditionalScopes = async (
     return await checkConditionalScopes(
       driver,
       conditionalScopes,
-      userId,
+      user,
       objectId
     );
   } else {
@@ -81,7 +81,7 @@ export const satisfiesConditionalScopes = async (
 export const checkConditionalScopes = async (
   driver,
   scopes,
-  userId,
+  user,
   objectId
 ) => {
   // if no driver has been provided throw error
@@ -111,10 +111,11 @@ export const checkConditionalScopes = async (
 
   let query = "WITH false AS result";
   conditions.forEach(condition => {
+    // Todo: first check the existence of the condition in the conditionalQueryMap
     const conditionalQuery = conditionalQueryMap.get(condition);
     if (conditionalQuery) {
       query = `${query}
-            ${conditionalQuery(userId, objectId)}, result
+            ${conditionalQuery(user, objectId)}, result
             WITH result OR is_allowed as result`; // if we find a single occurrence of true, then result is true
     }
   });

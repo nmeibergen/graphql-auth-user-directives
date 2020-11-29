@@ -130,6 +130,14 @@ Finally, in some cases the roles and or scopes in the decoded user object may co
 export USER_METAS="roles,scopes"
 ```
 
+## Conditional permissions
+This package includes the conditional based authorisation, for example: a mutation may have the scope `object: edit`, however you only wish some user to provide access if he/she is the owner of this object, the scope for this user might be `item: edit: isOwner`. What you need to do is configure query that is needed to check on whether this user is owner. See configuer below.
+
+### Configure
+Set the object id that is refered to: by default we provide preferene for `id` followed by `uid`. You can change this by setting the environment variable `OBJECT_IDENTIFIER`. By default it is thus set to the string `"id", "uid"`.  
+
+Set the query for the condition, e.g. for `isOwner`.
+
 ## Running Tests Locally
 
 You'll need to set node 13 or higher (due to the triple dot operator).

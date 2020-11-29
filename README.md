@@ -130,7 +130,7 @@ Finally, in some cases the roles and or scopes in the decoded user object may co
 export USER_METAS="roles,scopes"
 ```
 
-## Conditional permissions
+### Conditional permissions (optional)
 This package includes a conditional based authorisation functionality, for example: a mutation may have the scope 
 `object: edit`, however you only wish some user to provide access if he/she is the owner of this object, the scope for 
 this user might be `object: edit: isOwner` (this is also the way to define such permission, using another `:` and 
@@ -163,7 +163,7 @@ provide preference for `id` followed by `uid`. You can change this by setting th
 
 Set the query for the condition, e.g. for `isOwner`.
 
-### Separately checking conditional permissions
+#### Separately checking conditional permissions
 You may want to verify conditional permissions separately, e.g. to check whether the frontend should present a piece of 
 code. Therefore you can now call the conditional permission check function:
 

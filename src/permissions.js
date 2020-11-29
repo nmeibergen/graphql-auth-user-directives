@@ -1,4 +1,4 @@
-import { UserInputError } from "apollo-server";
+import { UserInputError, ApolloError } from "apollo-server";
 
 // dictionary with indicator of condition and function to retrieve conditional query based on userId and crudObjectId
 export let conditionalQueryMap = new Map(); // initialize as empty map -> editable by end user
@@ -84,6 +84,13 @@ export const checkConditionalScopes = async (
   userId,
   objectId
 ) => {
+  // if no driver has been provided throw error
+  if (driver == null) {
+    throw new Error(
+      "No driver to the database is provided, therefore conditional scopes cannot be verified."
+    );
+  }
+
   // set conditions to be an array
   if (!Array.isArray(scopes)) scopes = [scopes];
 

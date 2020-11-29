@@ -464,6 +464,29 @@ describe("@hasScope: Roles and permissions are attached to the user", () => {
 
     expect(result.data.updateItemMultiCondition.id).toEqual("123");
   });
+  test("Throw driver missing error if no driver is provided when needed", async () => {
+    server.mergeContext({
+      req: {},
+      driver: null
+    });
+
+    const { query, mutate } = createTestClient(server);
+
+    const result = await mutate({
+      mutation: gql`
+        mutation {
+          updateItemConditiontrue(id: 1, name: "newname") {
+            id
+            name
+          }
+        }
+      `
+    });
+
+    expect(result.errors[0].message).toEqual(
+      "No driver to the database is provided, therefore conditional scopes cannot be verified."
+    );
+  });
 });
 
 describe("@isAuthenticated: Roles and permissions are attached to the user", () => {

@@ -200,21 +200,17 @@ export class HasScopeDirective extends SchemaDirectiveVisitor {
         allScopes
       );
       context.user = { ...context.user, ...rolesAndScopes }; // create or extend
-      try {
-        if (
-          context.user.scopes !== null &&
-          (await permissions.satisfiesScopes(
-            context.driver,
-            expectedScopes,
-            context.user.scopes,
-            context.user.uid,
-            ""
-          ))
-        ) {
-          return next(result, args, context, info);
-        }
-      } catch (e) {
-        const test = 1;
+      if (
+        context.user.scopes !== null &&
+        (await permissions.satisfiesScopes(
+          context.driver,
+          expectedScopes,
+          context.user.scopes,
+          context.user.uid,
+          ""
+        ))
+      ) {
+        return next(result, args, context, info);
       }
 
       if (context.user.roles === defaultRole && authenticationError) {

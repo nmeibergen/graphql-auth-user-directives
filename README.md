@@ -201,15 +201,4 @@ Then run the tests by performing
 yarn test
 ```
 
-
-## Test JWTs
-
-Scopes: user:CRUD
-
-~~~
-key: qwertyuiopasdfghjklzxcvbnm123456
-~~~
-
-~~~
-eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTQ5MTQ1Mjk0LCJleHAiOjE2OTE3ODEzMDcsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsIlJvbGUiOiJBRE1JTiIsIlNjb3BlIjpbIlVzZXI6UmVhZCIsIlVzZXI6Q3JlYXRlIiwiVXNlcjpVcGRhdGUiLCJVc2VyOkRlbGV0ZSJdfQ.WJffOec05r8KuzW76asax1iCzv5q4rwRv9kvFyw7c_E
-~~~
+The JWT secret, permissions and metas required for testing are all defined in the `.env` file.

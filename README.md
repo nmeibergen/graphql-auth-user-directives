@@ -1,8 +1,8 @@
 # graphql-auth-user-directives
 
-[![CircleCI](https://circleci.com/gh/grand-stack/graphql-auth-user-directives.svg?style=svg)](https://circleci.com/gh/grand-stack/graphql-auth-user-directives)
-
-Add authentication to your GraphQL API with schema directives.
+Add authentication to your GraphQL API with schema directives. Provides options for improved managing of permissions, 
+also for non-authenticated users, and manages conditional permission performing Neo4j lookups based on user defined 
+queries.
 
 ## Schema directives for authorization
 

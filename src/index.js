@@ -25,6 +25,10 @@ export const allScopes = process.env.PERMISSIONS
   ? JSON.parse(Buffer.from(process.env.PERMISSIONS, "base64").toString("utf-8"))
   : null;
 
+const authorizationHeader = process.env.AUTHORIZATION_HEADER
+  ? process.env.AUTHORIZATION_HEADER
+  : "authorization";
+
 const objectIdIdentifier = process.env.OBJECT_IDENTIFIER
   ? process.env.OBJECT_IDENTIFIER.split(",").map(s => s.trim())
   : ["id", "uid"];
@@ -143,14 +147,16 @@ const verifyAndDecodeToken = ({ context }) => {
   if (
     !req ||
     !req.headers ||
-    (!req.headers.authorization && !req.headers.Authorization) ||
+    (!req.headers[authorizationHeader] && !req.headers[authorizationHeader]) ||
     (!req && !req.cookies && !req.cookies.token)
   ) {
     throw new AuthorizationError({ message: "No authorization token." });
   }
 
   const token =
-    req.headers.authorization || req.headers.Authorization || req.cookies.token;
+    req.headers[authorizationHeader] ||
+    req.headers[authorizationHeader] ||
+    req.cookies.token;
   try {
     const id_token = token.replace("Bearer ", "");
     const { JWT_SECRET, JWT_NO_VERIFY } = process.env;

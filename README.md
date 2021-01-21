@@ -93,6 +93,13 @@ If all is set up correctly you should be able to use the directives and resolver
 
 ## Configure
 
+### Setting the authorization header name
+By default the package looks at the header name 'authorization' (capital letter sensitive). However you may specify the environment variable `AUTHORIZATION_HEADER` allowing for example for a header name like 'Application-Authorization', i.e.
+
+```sh
+export AUTHORIZATION_HEADER=Aplication-Authorization 
+```
+
 ### Setting the JWT token (required)
 
 There are two variables to control how tokens are processed.
@@ -155,8 +162,13 @@ Three things are important to note:
 2. You should end the Cypher query with a `WITH` statement that defines a variable called `is_allowed`.
 3. The function defined returns a string (the query used to perform the permission lookup in Neo4j) and it gets two 
 input arguments, the user as it is decoded and the objectId which is strongly related to the object itself. See the next 
-part on this object id.
+part on the object identifier.  
 
+The conditional permissions do not have to be specified in the schema, if one defines 
+`@hasScope(scopes: ["object: edit"]` for a query or mutation, then if the user has a the permission 
+`object: edit: someCondition` then this condition will be verified by default.
+
+#### Defining the Object identifier
 This object id is extracted from the provided parameters in Apollo. Usually it will be `id` or `uid`. By default we 
 provide preference for `id` followed by `uid`. You can change this by setting the environment variable 
 `OBJECT_IDENTIFIER`. By default it is thus set to the string `"id", "uid"`.  

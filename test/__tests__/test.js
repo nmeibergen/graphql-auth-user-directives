@@ -41,7 +41,7 @@ describe("Permissions without a provided token", () => {
     const token = "awefawe";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);
@@ -98,7 +98,7 @@ describe("Permission with a provided token", () => {
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTg4ODQ2NjU1LCJleHAiOjE2MjAzODI2NTUsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsInJvbGUiOiJhZG1pbiJ9.Io4L4ougLgBQ9MWotu5I3MOFCoed6NIhsaaBJ2UXotc";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);
@@ -124,7 +124,7 @@ describe("Permission with a provided token", () => {
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTg4ODQ2NjU1LCJleHAiOjE2MjAzODI2NTUsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsInJvbGUiOiJhZG1pbiJ9.Io4L4ougLgBQ9MWotu5I3MOFCoed6NIhsaaBJ2UXotc";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);
@@ -155,7 +155,7 @@ describe("Permission with a provided token", () => {
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTg4ODQ2NjU1LCJleHAiOjE2MjAzODI2NTUsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsInNjb3BlIjoidXNlcjpkZWxldGUifQ.YJ1AFRWLyVINzDKvLZhHHGtrjvLQDGGKa6OcHowedik";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);
@@ -181,7 +181,7 @@ describe("Permission with a provided token", () => {
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTg4ODQ2NjU1LCJleHAiOjE2MjAzODI2NTUsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsInNjb3BlIjoidXNlcjpkZWxldGUifQ.YJ1AFRWLyVINzDKvLZhHHGtrjvLQDGGKa6OcHowedik";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);
@@ -232,7 +232,7 @@ describe("@hasScope: Roles and permissions are attached to the user", () => {
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTg4ODQ2NjU1LCJleHAiOjE2MjAzODI2NTUsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsInJvbGUiOiJhZG1pbiJ9.Io4L4ougLgBQ9MWotu5I3MOFCoed6NIhsaaBJ2UXotc";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);
@@ -256,7 +256,7 @@ describe("@hasScope: Roles and permissions are attached to the user", () => {
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2MDUyODIwNjgsImV4cCI6MTc2MzA0ODQ2OCwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6Ik5hdGhhbiIsIlN1cm5hbWUiOiJNZWliZXJnZW4iLCJFbWFpbCI6Im5tQGVpLmNvbSIsImh0dHA6Ly93d3cuZXhhbXBsZS5jb20vcm9sZSI6WyJhZG1pbiIsImVkaXRvciJdfQ.TOP75bHu-lI4ZXRBl7L5cud_W68L1u9r9DtBH3qRnFs";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);
@@ -305,7 +305,7 @@ describe("@hasScope: Roles and permissions are attached to the user", () => {
     };
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } },
+      req: { headers: { authorization: `Bearer ${token}` } },
       driver: driver
     });
 
@@ -495,7 +495,7 @@ describe("@isAuthenticated: Roles and permissions are attached to the user", () 
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTg4ODQ2NjU1LCJleHAiOjE2MjAzODI2NTUsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsInJvbGUiOiJhZG1pbiJ9.Io4L4ougLgBQ9MWotu5I3MOFCoed6NIhsaaBJ2UXotc";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);
@@ -537,7 +537,7 @@ describe("@hasRole: Roles and permissions are attached to the user", () => {
       "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJHUkFORHN0YWNrIiwiaWF0IjoxNTg4ODQ2NjU1LCJleHAiOjE2MjAzODI2NTUsImF1ZCI6ImdyYW5kc3RhY2suaW8iLCJzdWIiOiJib2JAbG9ibGF3LmNvbSIsInJvbGUiOiJhZG1pbiJ9.Io4L4ougLgBQ9MWotu5I3MOFCoed6NIhsaaBJ2UXotc";
 
     server.mergeContext({
-      req: { headers: { Authorization: `Bearer ${token}` } }
+      req: { headers: { authorization: `Bearer ${token}` } }
     });
 
     const { query, mutate } = createTestClient(server);

@@ -138,7 +138,7 @@ const getRolesAndScopes = (user, defaultRole, allScopes) => {
   }
 };
 
-const verifyAndDecodeToken = ({ context }) => {
+export const verifyAndDecodeToken = ({ context }) => {
   const req =
     context instanceof IncomingMessage
       ? context

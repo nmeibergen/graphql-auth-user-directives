@@ -1,6 +1,6 @@
 {
   "name": "graphql-auth-user-directives",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "description": "Add authorization to your GraphQL API using schema directives.",
   "main": "./dist/index.js",
   "scripts": {

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon ./examples/index.js --exec babel-node -e js",
     "test": "jest --runInBand --detectOpenHandles --forceExit",
-    "build": "babel src --presets babel-preset-env --out-dir dist",
+    "build": "babel src --out-dir dist",
     "precommit": "lint-staged",
     "prepublish": "npm run build",
     "pretest": "npm run build"

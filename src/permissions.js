@@ -20,7 +20,7 @@ export const satisfiesScopes = async (
   // is matched on.
   const ListOfScopesToVerify = scopes.map(scope => {
     return userScopes.filter(userScope => {
-      return userScope.indexOf(scope) > -1;
+      return userScope.indexOf(scope) === 0;
     });
   });
   const scopesToVerifyDuplicates = [].concat.apply([], ListOfScopesToVerify);

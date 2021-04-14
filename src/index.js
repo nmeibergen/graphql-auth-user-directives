@@ -21,7 +21,7 @@ export { satisfiesConditionalScopes, conditionalQueryMap };
 export const defaultRole = process.env.DEFAULT_ROLE
   ? process.env.DEFAULT_ROLE
   : "visitor";
-export const allScopes = process.env.PERMISSIONS
+let allScopes = process.env.PERMISSIONS
   ? JSON.parse(Buffer.from(process.env.PERMISSIONS, "base64").toString("utf-8"))
   : null;
 
@@ -32,6 +32,10 @@ const authorizationHeader = process.env.AUTHORIZATION_HEADER
 const objectIdIdentifier = process.env.OBJECT_IDENTIFIER
   ? process.env.OBJECT_IDENTIFIER.split(",").map(s => s.trim())
   : ["id", "uid"];
+
+export const loadPermisssionSchema = schema => {
+  allScopes = schema;
+};
 
 const userMetaMapper = (user, metas) => {
   if (process.env.USER_METAS) {

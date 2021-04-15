@@ -1,7 +1,9 @@
-import { createError } from "apollo-errors";
+import { ApolloError } from "apollo-server";
 
-const AuthorizationError = createError('AuthorizationError', {
-  message: 'You are not authorized.'
-});
+class AuthorizationError extends ApolloError {
+  constructor({ message = "You are not authorized." }) {
+    super(message, "AuthorizationError");
+  }
+}
 
 module.exports = { AuthorizationError };

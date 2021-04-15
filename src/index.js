@@ -17,13 +17,24 @@ import {
 // export some from permissions
 export { satisfiesConditionalScopes, conditionalQueryMap };
 
-// export the defaultRole and allScopes
+// export the defaultRole
 export const defaultRole = process.env.DEFAULT_ROLE
   ? process.env.DEFAULT_ROLE
   : "visitor";
-export const allScopes = process.env.PERMISSIONS
+
+// Get scopes from env
+let allScopes = process.env.PERMISSIONS
   ? JSON.parse(Buffer.from(process.env.PERMISSIONS, "base64").toString("utf-8"))
   : null;
+
+/**
+ * Provide own permission schema. Override the environemnt.
+ *
+ * @param {*} schema schema object
+ */
+export const loadPermissionSchema = schema => {
+  allScopes = schema;
+};
 
 const authorizationHeader = process.env.AUTHORIZATION_HEADER
   ? process.env.AUTHORIZATION_HEADER

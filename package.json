@@ -38,7 +38,7 @@
     "neo4j",
     "user"
   ],
-  "author": "Lakindu Akash",
+  "author": "Nathan Meibergen",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/lakinduakash/graphql-auth-user-directives/issues"

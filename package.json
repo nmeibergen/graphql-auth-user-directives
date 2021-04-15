@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lakinduakash/graphql-auth-user-directives.git"
+    "url": "git+https://github.com/nmeibergen/graphql-auth-user-directives.git"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.13",
@@ -41,7 +41,7 @@
   "author": "Nathan Meibergen",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/lakinduakash/graphql-auth-user-directives/issues"
+    "url": "https://github.com/nmeibergen/graphql-auth-user-directives/issues"
   },
   "jest": {
     "verbose": true,
@@ -57,7 +57,7 @@
       }
     ]
   },
-  "homepage": "https://github.com/lakinduakash/graphql-auth-user-directives#readme",
+  "homepage": "https://github.com/nmeibergen/graphql-auth-user-directives#readme",
   "lint-staged": {
     "*.{js,json,css}": [
       "prettier --write",

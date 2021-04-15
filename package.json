@@ -65,7 +65,6 @@
     ]
   },
   "dependencies": {
-    "apollo-errors": "^1.9.0",
     "apollo-server": "^2.22.2",
     "graphql-tag": "^2.10.3",
     "graphql-tools": "^7.0.4",

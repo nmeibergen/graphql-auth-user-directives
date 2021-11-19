@@ -1,4 +1,4 @@
-import { UserInputError } from "apollo-server";
+import { UserInputError } from "apollo-server-express";
 
 // dictionary with indicator of condition and function to retrieve conditional query based on userId and crudObjectId
 export let conditionalQueryMap = new Map(); // initialize as empty map -> editable by end user

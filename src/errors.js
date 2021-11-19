@@ -1,4 +1,4 @@
-import { ApolloError } from "apollo-server";
+import { ApolloError } from "apollo-server-express";
 
 class AuthorizationError extends ApolloError {
   constructor({ message = "You are not authorized." }) {

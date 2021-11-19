@@ -1,8 +1,7 @@
 // TODO: will need to set appropriate env vars
 
-import { ApolloServer } from "apollo-server";
+import { ApolloServer } from "apollo-server-express";
 import { makeExecutableSchema } from "graphql-tools";
-import GraphQLJSON from "graphql-type-json";
 import * as permissions from "../../src/permissions";
 
 const {
@@ -202,5 +201,7 @@ const server = new ApolloTestServer({
   //   console.log(`GraphQL server ready at ${url}`);
   // >>>>>>> c09bb0fe60447ae7bcb53670a49c8e12dc3cd46b
 });
+
+server.start();
 
 module.exports.server = server;

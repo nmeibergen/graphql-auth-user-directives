@@ -68,7 +68,7 @@
     "apollo-server": "^2.22.2",
     "graphql-tag": "^2.10.3",
     "graphql-tools": "^7.0.4",
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^9.0.0"
   },
   "peerDependencies": {
     "graphql": "~14.x || ~15.x"
